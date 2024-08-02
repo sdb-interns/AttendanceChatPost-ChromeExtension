@@ -1,3 +1,6 @@
+# SDB用手順書
+[こちらのリンク](https://www.notion.so/socialdb/Slack-f080f3a180614253a7bd91ff6cf9d0cf)
+
 # AttendanceChatPost-ChromeExtension
 Chrome extension for attendance chat post with `https://biz.moneyforward.com/attendance`.
 
