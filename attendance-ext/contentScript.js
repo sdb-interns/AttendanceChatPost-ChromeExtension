@@ -74,7 +74,7 @@ function getAllDateText() {
             if (group && group.lastElementChild && group.lastElementChild.children) {
                 Array.from(group.lastElementChild.children).reverse().forEach(element => {
                     if (element.firstElementChild && element.firstElementChild.firstElementChild && element.firstElementChild.lastElementChild) {
-                        chats.push(`${element.firstElementChild.firstElementChild.innerText} ${element.firstElementChild.lastElementChild.innerText}`);
+                        chats.push(`${element.firstElementChild.lastElementChild.innerText} ${element.firstElementChild.firstElementChild.innerText}`);
                     }
                 });
             }
