@@ -8,7 +8,6 @@ function loadChatConf(){
         if (data.chatConfig) {
             chatConf.webhook = data.chatConfig.webhook;
             chatConf.channel = data.chatConfig.channel;
-            chatConf.username = data.chatConfig.username;
         }
     });
 };
@@ -135,20 +134,83 @@ function getMessageText2(text) {
     return messageFormat(mfckExtUser||getUserText2(), getDateText2(), text)
 }
 
-function dataJson(messageText){
-    // console.log(messageText);
+function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // 月は0から始まるため+1
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
+function dataJson(messageText) {
     let ret = {
-        "text" : messageText,
-        "username": (chatConf.username || null) ?? "kintai-bot"
+        "text": messageText,
+        "username": "勤怠"
     };
-    if(chatConf.channel) {
+
+    if (chatConf.channel) {
         ret.channel = chatConf.channel;
     }
-    // console.log(ret);
+
+    ret.blocks = [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": messageText
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "plain_text_input",
+                "multiline": true,
+                "action_id": "plain_text_input-action"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "今日やったこと",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "plain_text_input",
+                "multiline": true,
+                "action_id": "plain_text_input-action"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "次回やること",
+                "emoji": true
+            }
+        },
+        {
+            "type": "input",
+            "element": {
+                "type": "datepicker",
+                "initial_date": getTodayDate(),
+                "placeholder": {
+                    "type": "plain_text",
+                    "text": "Select a date",
+                    "emoji": true
+                },
+                "action_id": "datepicker-action"
+            },
+            "label": {
+                "type": "plain_text",
+                "text": "次回勤務日",
+                "emoji": true
+            }
+        }
+    ];
+
+    // console.log(ret); // デバッグ用
 
     return ret;
 }
+
 
 function postChat(data){
     // console.log(data);

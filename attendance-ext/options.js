@@ -2,13 +2,11 @@
 
 const webhookElem = document.getElementById('webhook-url');
 const channelElem = document.getElementById('channel');
-const usernameElem = document.getElementById('username');
 chrome.storage.local.get(['chatConfig'], function(data) {
   // console.log(data);
   if (data.chatConfig) {
     webhookElem.value = data.chatConfig.webhook ?? "";
     channelElem.value = data.chatConfig.channel ?? "";
-    usernameElem.value = data.chatConfig.username ?? "";
   }
 });
 // console.log(webhookElem.value, channelElem.value, usernameElem.value);
@@ -19,7 +17,6 @@ const buttonClick = function(){
     const chatConfig = {
       webhook: webhookElem.value,
       channel: channelElem.value,
-      username: usernameElem.value
     };
     // console.log(chatConfig);
 
