@@ -143,7 +143,6 @@ function getTodayDate() {
 }
 
 function dataJson(messageText) {
-    // メッセージテキストと基本情報を設定
     let ret = {
         "text": messageText,
         "username": "勤怠"
