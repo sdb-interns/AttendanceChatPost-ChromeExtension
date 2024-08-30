@@ -8,6 +8,7 @@ function loadChatConf(){
         if (data.chatConfig) {
             chatConf.webhook = data.chatConfig.webhook;
             chatConf.channel = data.chatConfig.channel;
+            chatConf.userid = data.chatConfig.userid;
         }
     });
 };
@@ -17,8 +18,10 @@ function messageFormat(userText, dateText, text) {
 }
 
 function lastMessageFormat(userText, chats) {
-    return `${userText}さんが今日の勤務報告を送信しました。\n\n ${chats.join('\n')}`
+    const mention = chatConf.userid ? `<@${chatConf.userid}>` : userText;
+    return `${mention}さんが今日の勤務報告を送信しました。\n\n ${chats.join('\n')}`;
 }
+
 
 function getUserText() {
     // console.log('getUserText')
@@ -142,6 +145,12 @@ function getTodayDate() {
     return `${year}-${month}-${day}`;
 }
 
+function isEndOfMonth() {
+    const today = new Date();
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    return today.getDate() === lastDayOfMonth;
+}
+
 function dataJson(messageText) {
     let ret = {
         "text": messageText,
@@ -205,6 +214,26 @@ function dataJson(messageText) {
             }
         }
     ];
+
+    if (isEndOfMonth()) {
+        const alertMessage = "⚠️ 注意: 本日は月末です。勤怠と経費精算を忘れずに提出してください。";
+        ret.attachments = [
+            {
+                "color": "#f2c744",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": chatConf.userid
+                              ? `<@${chatConf.userid}>\n${alertMessage}`
+                              : alertMessage
+                        }
+                    }
+                ]
+            }
+        ];
+    }
 
     // console.log(ret); // デバッグ用
 
