@@ -153,15 +153,10 @@ function isEndOfMonth() {
 function dataJson(messageText){
     // console.log(messageText);
 
-    let ret = {
-        "text" : messageText,
-        "username": (chatConf.username || null) ?? "kintai-bot"
-    };
-    if(chatConf.channel) {
-        ret.channel = chatConf.channel;
-    }
     // console.log(ret);
-    return ret;
+    return {
+        "text": messageText,
+    };
 }
 
 function lastDataJson(messageText) {
