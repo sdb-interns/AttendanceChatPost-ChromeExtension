@@ -152,11 +152,17 @@ function isEndOfMonth() {
 }
 function dataJson(messageText){
     // console.log(messageText);
+    let ret = {
+        "text": messageText,
+        "username": "勤怠"
+    };
+
+    if (chatConf.channel) {
+        ret.channel = chatConf.channel;
+    }
 
     // console.log(ret);
-    return {
-        "text": messageText,
-    };
+    return ret;
 }
 
 function lastDataJson(messageText) {
