@@ -150,8 +150,21 @@ function isEndOfMonth() {
     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
     return today.getDate() === lastDayOfMonth;
 }
+function dataJson(messageText){
+    // console.log(messageText);
 
-function dataJson(messageText) {
+    let ret = {
+        "text" : messageText,
+        "username": (chatConf.username || null) ?? "kintai-bot"
+    };
+    if(chatConf.channel) {
+        ret.channel = chatConf.channel;
+    }
+    // console.log(ret);
+    return ret;
+}
+
+function lastDataJson(messageText) {
     let ret = {
         "text": messageText,
         "username": "勤怠"
@@ -267,6 +280,13 @@ function chatPostByClick(messageText) {
     postChat(data);
 }
 
+function chatPostByLastClick(messageText) {
+    // console.log(messageText);
+    const data = lastDataJson(messageText);
+    // console.log(data);
+    postChat(data);
+}
+
 (async function() {
     /* load configration */
     loadChatConf();
@@ -281,7 +301,7 @@ function chatPostByClick(messageText) {
             element.addEventListener(chatPostEventName, async function (e) {
                 if (element.innerText === '退勤') {
                     await sleep(1000);
-                    chatPostByClick(getLastMessageText());
+                    chatPostByLastClick(getLastMessageText());
                 } else {
                     chatPostByClick(getMessageText(element.innerText));
                 }
