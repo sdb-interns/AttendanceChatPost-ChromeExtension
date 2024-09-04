@@ -17,9 +17,9 @@ function messageFormat(userText, dateText, text) {
     return `${userText} - \`${dateText}\` ${text}`
 }
 
-function lastMessageFormat(userText, chats) {
+function lastMessageFormat(userText, chats, messageText) {
     const mention = chatConf.userid ? `<@${chatConf.userid}>` : userText;
-    return `${mention}さんが今日の勤務報告を送信しました。\n\n ${chats.join('\n')}`;
+    return `${mention}さんが今日の勤務報告を送信しました。\n\n ${chats.join('\n')} \n\n${messageText}`;
 }
 
 
@@ -99,8 +99,8 @@ function getMessageText(text) {
     return messageFormat(mfckExtUser||getUserText(), getDateText(), text)
 }
 
-function getLastMessageText() {
-    return lastMessageFormat(mfckExtUser||getUserText(), getAllDateText())
+function getLastMessageText(messageText) {
+    return lastMessageFormat(mfckExtUser||getUserText(), getAllDateText(), messageText);
 }
 
 /**
@@ -183,50 +183,6 @@ function lastDataJson(messageText) {
                 "text": messageText
             }
         },
-        {
-            "type": "input",
-            "element": {
-                "type": "plain_text_input",
-                "multiline": true,
-                "action_id": "plain_text_input-action"
-            },
-            "label": {
-                "type": "plain_text",
-                "text": "今日やったこと",
-                "emoji": true
-            }
-        },
-        {
-            "type": "input",
-            "element": {
-                "type": "plain_text_input",
-                "multiline": true,
-                "action_id": "plain_text_input-action"
-            },
-            "label": {
-                "type": "plain_text",
-                "text": "次回やること",
-                "emoji": true
-            }
-        },
-        {
-            "type": "input",
-            "element": {
-                "type": "datepicker",
-                "initial_date": getTodayDate(),
-                "placeholder": {
-                    "type": "plain_text",
-                    "text": "Select a date",
-                    "emoji": true
-                },
-                "action_id": "datepicker-action"
-            },
-            "label": {
-                "type": "plain_text",
-                "text": "次回勤務日",
-                "emoji": true
-            }
-        }
     ];
 
     if (isEndOfMonth()) {
@@ -302,7 +258,61 @@ function chatPostByLastClick(messageText) {
             element.addEventListener(chatPostEventName, async function (e) {
                 if (element.innerText === '退勤') {
                     await sleep(1000);
-                    chatPostByLastClick(getLastMessageText());
+                    const dialog = document.createElement('dialog');
+                    dialog.style = `
+                        max-width: 600px;
+                        width: 100%;
+                        padding: 24px;
+                        background-color: #fff;
+                        border-radius: 8px;
+                        border: none;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    `;
+                    dialog.innerHTML = `
+                        <form method="dialog" style="display: flex; flex-direction: column; gap: 16px;">
+                            <hgroup>
+                                <h1 style="font-size: 24px; font-weight: 700;">今日の勤務報告</h1>
+                                <p style="font-size: 16px;">勤務報告を送信しますか？</p>
+                            </hgroup>
+                            <p id="errorMessage" style="display: none; font-size: 16px; color: red;"></p>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label for="whatIDid" style="font-size: 14px; font-weight: 700;">やったこと</label>
+                                <textarea name="whatIDid" id="whatIDid" cols="30" rows="10"></textarea>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label for="whatToDo" style="font-size: 14px; font-weight: 700;">次回やること</label>
+                                <textarea name="whatToDo" id="whatToDo" cols="30" rows="10"></textarea>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label for="nextDate" style="font-size: 14px; font-weight: 700;">次回の勤務</label>
+                                <input type="date" name="nextDate" id="nextDate">
+                            </div>
+                            <menu>
+                                <button value="cancel">キャンセル</button>
+                                <button value="submit" autofocus>送信</button>
+                            </menu>
+                        </form>
+                    `;
+                    document.body.appendChild(dialog);
+                    dialog.showModal();
+                    const form = dialog.querySelector('form');
+                    const cancelButton = document.querySelector('button[value="cancel"]');
+                    const submitButton = document.querySelector('button[value="submit"]');
+
+                    // キャンセルボタンが押された時の処理
+                    cancelButton.addEventListener('click', () => {
+                        dialog.close();
+                    });
+
+                    // 送信ボタンが押された時の処理
+                    submitButton.addEventListener('click', () => {
+                        const whatIDid = form.elements['whatIDid'].value ?? '';
+                        const whatToDo = form.elements['whatToDo'].value ?? '';
+                        const nextDate = form.elements['nextDate'].value ?? '';
+                        const messageText = `*やったこと* \n ${whatIDid}\n\n *次回やること* \n ${whatToDo}\n\n *次回の勤務* \n ${nextDate} \n`;
+                        chatPostByLastClick(getLastMessageText(messageText));
+                        dialog.close();
+                    });
                 } else {
                     chatPostByClick(getMessageText(element.innerText));
                 }
