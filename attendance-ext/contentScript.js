@@ -313,7 +313,7 @@ function chatPostByLastClick(messageText) {
                         chatPostByLastClick(getLastMessageText(messageText));
                         dialog.close();
                     });
-                } else {
+                } else if (element.innerText === '出勤') {
                     chatPostByClick(getMessageText(element.innerText));
                 }
             });
